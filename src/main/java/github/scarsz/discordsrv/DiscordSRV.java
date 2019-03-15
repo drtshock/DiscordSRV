@@ -171,16 +171,14 @@ public class DiscordSRV extends JavaPlugin implements Listener {
     public static void debug(String message) {
         // return if plugin is not in debug mode
         if (getPlugin().getConfig().getInt("DebugLevel") == 0) return;
-
-        getPlugin().getLogger().info("[DEBUG] " + message + (getPlugin().getConfig().getInt("DebugLevel") >= 2 ? "\n" + DebugUtil.getStackTrace() : ""));
     }
 
     @Override
     public void onEnable() {
         Thread initThread = new Thread(this::init, "DiscordSRV - Initialization");
         initThread.setUncaughtExceptionHandler((t, e) -> {
+            getLogger().severe("DiscordSRV failed to load properly: " + e.getMessage());
             e.printStackTrace();
-            getLogger().severe("DiscordSRV failed to load properly: " + e.getMessage() + ". See " + github.scarsz.discordsrv.util.DebugUtil.run("DiscordSRV") + " for more information.");
         });
         initThread.start();
     }
@@ -226,10 +224,6 @@ public class DiscordSRV extends JavaPlugin implements Listener {
             }
             return;
         }
-
-        // random phrases for debug handler
-        if (!getConfig().getBoolean("RandomPhrasesDisabled"))
-            Collections.addAll(randomPhrases, HttpUtil.requestHttp("https://raw.githubusercontent.com/Scarsz/DiscordSRV/randomaccessfiles/randomphrases").split("\n"));
 
         // shutdown previously existing jda if plugin gets reloaded
         if (jda != null) try { jda.shutdown(); jda = null; } catch (Exception e) { e.printStackTrace(); }
